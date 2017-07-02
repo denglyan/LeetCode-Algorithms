@@ -59,9 +59,9 @@ Searching i in [0, m], to find an object `i` that:
 
 边界值：
 若 i = 0，说明 A[0] ... A[i-1] 不存在，则 max(left_part) 就是 B[j-1]
-同理，若 j = 0，则 max(left_part) 就是 A[i-1]
+若 j = 0，说明 B[0] ... B[j-1] 不存在，则 max(left_part) 就是 A[i-1]
 若 i = m，说明 A[i] ... A[m-1] 不存在，则 min(right_part) 就是 B[j]
-同理，若 j = n，则 min(right_part) 就是 A[i]
+若 j = n，说明 B[j] ... B[n-1] 不存在，则 min(right_part) 就是 A[i]
 ```
 
 ### 代码
