@@ -100,7 +100,7 @@ public class Solution {
 
 **中心扩散**
 
-```
+```java
 public class Solution {
 
     public String longestPalindrome(String s) {
@@ -135,7 +135,7 @@ public class Solution {
 
 **Manacher's Algorithm**
 
-```
+```java
 public class Solution {
 
     public String longestPalindrome(String s) {
