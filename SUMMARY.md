@@ -7,3 +7,5 @@
 * [4. Median of Two Sorted Arrays](median-of-two-sorted-arrays.md)
 * [5. Longest Palindromic Substring](longest-palindromic-substring.md)
 * [6. ZigZag Conversion](zigzag-conversion.md)
+* [7. Reverse Integer](reverse-integer.md)
+* [8. String to Integer (atoi)](string-to-integer-atoi.md)
