@@ -9,3 +9,4 @@
 * [6. ZigZag Conversion](zigzag-conversion.md)
 * [7. Reverse Integer](reverse-integer.md)
 * [8. String to Integer (atoi)](string-to-integer-atoi.md)
+* [9. Palindrome Number](palindrome-number.md)
