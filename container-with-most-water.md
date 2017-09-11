@@ -16,10 +16,6 @@ Note: You may not slant the container and n is at least 2.
 
 ![](/assets/container-with-most-water.png)
 
-
-
-
-
 一个容器所能装的水取决于最短一边的高度，即 `width * min(height[l] , height[r])`
 
 `l` 与 `r` 分别从两端开始，假设 `height[l] < height[r]`，那么当 `r` 向左移（向 `l` 靠近）时，最小高度不可能大于 `height[l]`，且 `width` 不断减少，所以 `r` 向左移没有判断的必要，只能 `l` 向右移（向 `r` 靠近），直到 `height[l] >= height[r]` 时，对象由 `l` 变成 `r`，重复此过程，直至 `l` 与 `r` 相遇
@@ -28,6 +24,7 @@ Note: You may not slant the container and n is at least 2.
 
 ```java
 public class Solution {
+
     public int maxArea(int[] height) {
 
         int max = 0, n = height.length;
