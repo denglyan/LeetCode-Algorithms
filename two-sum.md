@@ -1,5 +1,7 @@
 ## Two Sum
 
+### Problem
+
 Given an array of integers, return **indices** of the two numbers such that they add up to a specific target.
 
 You may assume that each input would have **exactly** one solution, and you may not use the same element twice.
@@ -17,89 +19,56 @@ return [0, 1].
 
 `Array` `Hash Table`
 
-### 描述
+### Analysis
 
-给出一组整数，以及一个目标，假设必存在两个数相加的结果等于这个目标，输出这两个数在数组里的下标
+- 方法一：暴力查找，双重循环判断。
 
-### 分析
+- 方法二：用 `Map` 来存储数据，以值为 `key`，以下标为 `value`。先判断 `key` 是否等于 `target - nums[i]`，再往 `Map` 里存储数据，就可以避免出现 `value == i` 的情况。
 
-- 方法一：暴力查找，通过双重循环进行查找
-- 方法二：采用 HashMap 来存储数据，以空间换时间，优化查找
-- 方法三：在方法二的基础上，将两次查询合并成一次
-
-### 代码
+### Code
 
 **暴力查找**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public int[] twoSum(int[] nums, int target) {
+    fun twoSum(nums: IntArray, target: Int): IntArray {
 
-        for (int i = 0, k; i < nums.length; i++) {
+        for (i: Int in nums.indices) {
 
-            k = target - nums[i];
-            for (int j = i + 1; j < nums.length; j++) {
-
-                if (nums[j] == k) {
-                    return new int[]{i, j};
+            val k = target - nums[i]
+            for (j: Int in IntRange(i + 1, nums.lastIndex)) {
+                if (k == nums[j]) {
+                    return intArrayOf(i, j)
                 }
             }
         }
 
-        throw new IllegalArgumentException("No two sum solution");
+        throw IllegalArgumentException("No two sum solution")
     }
 }
 ```
 
-**HashMap 存储数据**
+**Map 存储数据**
 
-```java
-import java.util.HashMap;
+```kotlin
+class Solution {
 
-public class Solution {
+    fun twoSum(nums: IntArray, target: Int): IntArray {
 
-    public int[] twoSum(int[] nums, int target) {
+        val map = HashMap<Int, Int>()
 
-        HashMap<Integer, Integer> hashMap = new HashMap<Integer, Integer>();
-        for (int i = 0; i < nums.length; i++) {
-            hashMap.put(nums[i], i);
-        }
+        nums.forEachIndexed { i, n ->
 
-        for (int i = 0, k; i < nums.length; i++) {
-
-            k = target - nums[i];
-            if (hashMap.containsKey(k) && hashMap.get(k) != i) {
-                return new int[]{i, hashMap.get(k)};
-            }
-        }
-
-        throw new IllegalArgumentException("No two sum solution");
-    }
-}
-```
-
-**优化**
-
-```java
-import java.util.HashMap;
-
-public class Solution {
-
-    public int[] twoSum(int[] nums, int target) {
-
-        HashMap<Integer, Integer> hashMap = new HashMap<Integer, Integer>();
-        for (int i = 0, k; i < nums.length; i++) {
-
-            k = target - nums[i];
-            if (hashMap.containsKey(k)) {
-                return new int[]{hashMap.get(k), i};
+            val index = map[target - n]
+            if (index != null) {
+                return intArrayOf(i, index)
             }
 
-            hashMap.put(nums[i], i);
+            map[n] = i
         }
 
-        throw new IllegalArgumentException("No two sum solution");
+        throw IllegalArgumentException("No two sum solution")
     }
 }
 ```
