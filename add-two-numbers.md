@@ -1,5 +1,7 @@
 ## Add Two Numbers
 
+### Problem
+
 You are given two **non-empty** linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
 
 You may assume the two numbers do not contain any leading zero, except the number 0 itself.
@@ -11,72 +13,50 @@ Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
 Output: 7 -> 0 -> 8
 ```
 
-![](/assets/add-two-numbers.svg)
-
 **Related Topics:**
 
 `Linked List` `Math`
 
-### 描述
+### Analysis
 
-两个非负整数，分别以两个非空链表，按位倒序存储，求这两个数的和，并且也以链表形式输出
+由于是倒序，更容易操作，每位对应相加，同时注意进位和判空，即可。
 
-### 分析
+### Code
 
-类似于归并排序里合并两个数组
-
-### 代码
-
-```java
+```kotlin
 /**
  * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode(int x) { val = x; }
+ * class ListNode(var `val`: Int = 0) {
+ *     var next: ListNode? = null
  * }
  */
-public class Solution {
+class Solution {
 
-    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+    fun addTwoNumbers(l1: ListNode?, l2: ListNode?): ListNode? {
 
-        int n, k = 0;
-        ListNode listNode = new ListNode(0);
-        ListNode head = listNode;
+        var listNode1 = l1
+        var listNode2 = l2
 
-        while (l1 != null && l2 != null) {
+        var carry = 0
+        var listNode: ListNode? = ListNode(0)
+        val head = listNode
 
-            n = l1.val + l2.val + k;
-            k = n / 10;
-            listNode.next = new ListNode(n % 10);
-            listNode = listNode.next;
-            l1 = l1.next;
-            l2 = l2.next;
+        while (listNode1 != null || listNode2 != null) {
+
+            carry = (listNode1?.`val` ?: 0) + (listNode2?.`val` ?: 0) + carry / 10
+            listNode?.next = ListNode(carry % 10)
+            listNode = listNode?.next
+
+            listNode1 = listNode1?.next
+            listNode2 = listNode2?.next
         }
 
-        while (l1 != null) {
-
-            n = l1.val + k;
-            k = n / 10;
-            listNode.next = new ListNode(n % 10);
-            listNode = listNode.next;
-            l1 = l1.next;
+        carry /= 10
+        if (carry != 0) {
+            listNode?.next = ListNode(carry)
         }
 
-        while (l2 != null) {
-
-            n = l2.val + k;
-            k = n / 10;
-            listNode.next = new ListNode(n % 10);
-            listNode = listNode.next;
-            l2 = l2.next;
-        }
-
-        if (k != 0) {
-            listNode.next = new ListNode(k);
-        }
-
-        return head.next;
+        return head?.next
     }
 }
 ```

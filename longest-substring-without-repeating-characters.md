@@ -1,5 +1,7 @@
 ## Longest Substring Without Repeating Characters
 
+### Problem
+
 Given a string, find the length of the **longest substring** without repeating characters.
 
 **Examples:**
@@ -16,86 +18,30 @@ Given "pwwkew", the answer is "wke", with the length of 3. Note that the answer 
 
 `Hash Table` `Two Pointers` `String`
 
-### 描述
+### Analysis
 
-给出一个字符串，求出最长子串（子串内不存在重复的字符）的长度
+遍历字符串时，以当前字符为结尾，符合题意的字符串长度为：当前位置 - maxOf（上一个重复字符出现的位置，上一个当前字符出现的位置）
 
-### 分析
+### Code
 
-**方法一：**
+```kotlin
+class Solution {
 
-遍历字符串，进行计数 `len`，记录每个字符最新出现的位置 `index`，上一次进行操作的位置 `li`。若出现重复的字符，则 `len -= (index - li)`，这里要注意的是，判断 `index - li` 的正负。如果字符范围是确定的，可以采用数组来存储
+    fun lengthOfLongestSubstring(s: String): Int {
 
-**方法二：**
+        val map = HashMap<Char, Int>()
 
-大致思路和方法一类似，区别是，不采用计数，而是根据区间来，同时也要注意上一次进行操作的位置
+        var last = -1
+        var maxLen = 0
 
-### 代码
+        for (i in s.indices) {
 
-**计数**
-
-```java
-import java.util.HashMap;
-
-public class Solution {
-
-    public int lengthOfLongestSubstring(String s) {
-
-        HashMap<Character, Integer> hashMap = new HashMap<Character, Integer>();
-
-        int len = 0;
-        int maxlen = 0;
-        Integer key;
-
-        for (int i = 0, li = 0, index; i < s.length(); i++) {
-
-            len++;
-
-            key = hashMap.get(s.charAt(i));
-            index = (key != null ? key : 0);
-
-            if (index != 0 && index - li > 0) {
-
-                len -= (index - li);
-                li = index;
-            }
-
-            hashMap.put(s.charAt(i), i + 1);
-
-            if (maxlen < len) {
-                maxlen = len;
-            }
+            last = maxOf(last, map[s[i]] ?: -1)
+            maxLen = maxOf(maxLen, i - last)
+            map[s[i]] = i
         }
 
-        return maxlen;
-    }
-}
-```
-
-**区间**
-
-```java
-import java.util.HashMap;
-
-public class Solution {
-
-    public int lengthOfLongestSubstring(String s) {
-
-        HashMap<Character, Integer> hashMap = new HashMap<Character, Integer>();
-
-        int maxlen = 0;
-
-        for (int i = 0, li = 0; i < s.length(); i++) {
-
-            if (hashMap.containsKey(s.charAt(i))) {
-                li = Math.max(hashMap.get(s.charAt(i)), li);
-            }
-
-            maxlen = Math.max(maxlen, i - li + 1);
-            hashMap.put(s.charAt(i), i + 1);
-        }
-
-        return maxlen;
+        return maxLen
     }
 }
 ```
