@@ -20,7 +20,7 @@ Given "pwwkew", the answer is "wke", with the length of 3. Note that the answer 
 
 ### Analysis
 
-遍历字符串时，以当前字符为结尾，符合题意的字符串长度为：当前位置 - maxOf（上一个重复字符出现的位置，上一个当前字符出现的位置）
+遍历字符串时，以当前字符为结尾，符合题意的字符串长度为：当前位置 - maxOf（上一个重复字符出现的位置，上一个当前字符出现的位置）。
 
 ### Code
 

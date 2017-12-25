@@ -1,5 +1,7 @@
 ## Median of Two Sorted Arrays
 
+### Problem
+
 There are two sorted arrays **nums1** and **nums2** of size m and n respectively.
 
 Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
@@ -24,105 +26,160 @@ The median is (2 + 3)/2 = 2.5
 
 **Related Topics:**
 
-`Binary` `Search Array` `Divide and Conquer`
+`Array` `Binary Search` `Divide and Conquer`
 
-### 描述
+### Analysis
 
-给出两个已经有序的数组，求两个数组合并后的中位数，且时间复杂度要求为 `O(log (m+n))`
+中位数：将一个集合分成等长的两部分，其中一部分总是小于另一部分。
 
-### 分析
-
-如果采用归并排序的方式合并数组，再求中位数，其时间复杂度为 `O(m+n)`，不符合要求。从这个时间复杂度中，可以看出，主要采用二分搜索来查找中位数
-
-讨论区里有一个很不错的分析，这里简单介绍一下，建议大家可以看看原文：[solution](https://discuss.leetcode.com/topic/4996/share-my-o-log-min-m-n-solution-with-explanation)
-
-首先，对于中位数，要有一个明确的认识：把一个集合分成等长的两部分，其中一部分所有值总是小于另一部分
+我们可以将 `A`，`B` 两个数组进行划分：
 
 ```
-若：len(left_part) == len(right_part) && max(left_part) <= min(right_part)
-则：median = (max(left_part) + min(right_part))/2
-
-
       left_part          |        right_part
 A[0], A[1], ..., A[i-1]  |  A[i], A[i+1], ..., A[m-1]
 B[0], B[1], ..., B[j-1]  |  B[j], B[j+1], ..., B[n-1]
-
-
-所以目标是：
-Searching i in [0, m], to find an object `i` that:
-    B[j-1] <= A[i] and A[i-1] <= B[j], ( where j = (m + n + 1)/2 - i )
-
-
-当 B[j-1] > A[i] 时，说明 A[i] 偏小，Searching i in [i+1, m]
-当 A[i-1] > B[j] 时，说明 A[i-1] 偏大，Searching i in [0, i-1]
-
-
-边界值：
-若 i = 0，说明 A[0] ... A[i-1] 不存在，则 max(left_part) 就是 B[j-1]
-若 j = 0，说明 B[0] ... B[j-1] 不存在，则 max(left_part) 就是 A[i-1]
-若 i = m，说明 A[i] ... A[m-1] 不存在，则 min(right_part) 就是 B[j]
-若 j = n，说明 B[j] ... B[n-1] 不存在，则 min(right_part) 就是 A[i]
 ```
 
-### 代码
+如果我们确保：
 
-```java
-public class Solution {
+```
+1) len(left_part) == len(right_part)
+2) max(left_part) <= min(right_part)
 
-    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+等价于
 
-        if (nums1.length > nums2.length) {
-            int[] tmp = nums1;
-            nums1 = nums2;
-            nums2 = tmp;
+(1) i + j == m - i + n - j (or: m - i + n - j + 1)
+    if n >= m, we just need to set: i = 0 ~ m, j = (m + n + 1)/2 - i
+(2) B[j-1] <= A[i] and A[i-1] <= B[j]
+
+n >= m，为了确保 j 非负
+```
+
+则可得到结果：
+
+```
+median = (max(left_part) + min(right_part))/2
+
+等价于
+
+max(A[i-1], B[j-1]) (when m + n is odd)
+or (max(A[i-1], B[j-1]) + min(A[i], B[j]))/2 (when m + n is even)
+```
+
+所以我们需要做的是：
+
+```
+Searching i in [0, m], to find an object `i` that:
+    B[j-1] <= A[i] and A[i-1] <= B[j], ( where j = (m + n + 1)/2 - i )
+```
+
+通过二分查找，确定 `i`：
+
+```
+<1> Set imin = 0, imax = m, then start searching in [imin, imax]
+
+<2> Set i = (imin + imax)/2, j = (m + n + 1)/2 - i
+
+<3> Now we have len(left_part)==len(right_part). And there are only 3 situations
+     that we may encounter:
+    <a> B[j-1] <= A[i] and A[i-1] <= B[j]
+        Means we have found the object `i`, so stop searching.
+    <b> B[j-1] > A[i]
+        Means A[i] is too small. We must `ajust` i to get `B[j-1] <= A[i]`.
+        Can we `increase` i?
+            Yes. Because when i is increased, j will be decreased.
+            So B[j-1] is decreased and A[i] is increased, and `B[j-1] <= A[i]` may
+            be satisfied.
+        Can we `decrease` i?
+            `No!` Because when i is decreased, j will be increased.
+            So B[j-1] is increased and A[i] is decreased, and B[j-1] <= A[i] will
+            be never satisfied.
+        So we must `increase` i. That is, we must ajust the searching range to
+        [i+1, imax]. So, set imin = i+1, and goto <2>.
+    <c> A[i-1] > B[j]
+        Means A[i-1] is too big. And we must `decrease` i to get `A[i-1]<=B[j]`.
+        That is, we must ajust the searching range to [imin, i-1].
+        So, set imax = i-1, and goto <2>.
+```
+
+加上边界值：
+
+```
+<a> (j == 0 or i == m or B[j-1] <= A[i]) and
+    (i == 0 or j = n or A[i-1] <= B[j])
+    Means i is perfect, we can stop searching.
+
+<b> i < m and B[j - 1] > A[i]
+    Means i is too small, we must increase it.
+
+<c> i > 0 and A[i - 1] > B[j]
+    Means i is too big, we must decrease it.
+```
+
+`<b>` 和 `<c>` 不需要判断 `j`，因为 `i < m ==> j > 0` 和 `i > 0 ==> j < n`：
+
+```
+m <= n, i < m ==> j = (m+n+1)/2 - i > (m+n+1)/2 - m >= (2*m+1)/2 - m >= 0
+m <= n, i > 0 ==> j = (m+n+1)/2 - i < (m+n+1)/2 <= (2*n+1)/2 <= n
+```
+
+### Code
+
+```kotlin
+class Solution {
+
+    fun findMedianSortedArrays(nums1: IntArray, nums2: IntArray): Double {
+
+        val m: Int
+        val n: Int
+        val a: IntArray
+        val b: IntArray
+        if (nums1.size <= nums2.size) {
+            a = nums1
+            b = nums2
+        } else {
+            a = nums2
+            b = nums1
         }
+        m = a.size
+        n = b.size
 
-        int i, j;
-        int m = nums1.length;
-        int n = nums2.length;
+        var i: Int
+        var j: Int
+        val halfLen = (m + n + 1) / 2
+        var minI = 0
+        var maxI = m
+        while (minI <= maxI) {
 
-        int imin = 0;
-        int imax = m;
-        int half_len = (m + n + 1) / 2;
+            i = (minI + maxI) / 2
+            j = halfLen - i
 
-        while (imin <= imax) {
+            when {
+                i < m && b[j - 1] > a[i] -> minI = i + 1
+                i > 0 && a[i - 1] > b[j] -> maxI = i - 1
+                else -> {
+                    val maxLeft: Int = when {
+                        i == 0 -> b[j - 1]
+                        j == 0 -> a[i - 1]
+                        else -> maxOf(a[i - 1], b[j - 1])
+                    }
 
-            i = (imin + imax) / 2;
-            j = half_len - i;
+                    if ((m + n) % 2 == 1) {
+                        return maxLeft * 1.0
+                    }
 
-            if (i < m && nums1[i] < nums2[j - 1]) {
-                imin = i + 1;
-            } else if (i > 0 && nums1[i - 1] > nums2[j]) {
-                imax = i - 1;
-            } else {
+                    val minRight: Int = when {
+                        i == m -> b[j]
+                        j == n -> a[i]
+                        else -> minOf(a[i], b[j])
+                    }
 
-                int max_of_left;
-                if (i == 0) {
-                    max_of_left = nums2[j - 1];
-                } else if (j == 0) {
-                    max_of_left = nums1[i - 1];
-                } else {
-                    max_of_left = Math.max(nums1[i - 1], nums2[j - 1]);
+                    return (maxLeft + minRight) / 2.0
                 }
-
-                if ((m + n) % 2 == 1) {
-                    return max_of_left;
-                }
-
-                int min_of_right;
-                if (i == m) {
-                    min_of_right = nums2[j];
-                } else if (j == n) {
-                    min_of_right = nums1[i];
-                } else {
-                    min_of_right = Math.min(nums1[i], nums2[j]);
-                }
-
-                return (max_of_left + min_of_right) / 2.0;
             }
         }
 
-        return 0;
+        throw Exception("ValueError")
     }
 }
 ```

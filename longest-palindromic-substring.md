@@ -1,5 +1,7 @@
 ## Longest Palindromic Substring
 
+### Problem
+
 Given a string **s**, find the longest palindromic substring in **s**. You may assume that the maximum length of **s** is 1000.
 
 **Example 1:**
@@ -24,156 +26,142 @@ Output: "bb"
 
 `String`
 
-### 描述
+### Analysis
 
-给出一个字符串，求出最长的回文子串
+**最长公共子串：**
 
-### 分析
+原字符串与颠倒的字符串，求最长公共子串。但最长公共子串不一定是最长回文子串，例如 `abghba`，所以需要额外判断公共子串是否是回文子串。
+原字符串与颠倒的字符串，分别以 `i`，`ri` 从两端开始，在原字符串上遍历。这样当公共子串在原字符串的同一位置时，便是回文子串。
 
-**方法一：**
+**中心扩散：**
 
-两个字符串（原字符串，颠倒后的字符串），求最长公共子串
+遍历字符串，以每一个字符或两个字符为中心（奇偶性），向外扩散搜索。
 
-这里有一个陷阱，例如字符串  `abghba`，`ab` 是得到的最长公共子串，但却不是回文子串。这里只需判断子串在字符串（原字符串，颠倒后的字符串）上是否处于同一位置，即可知道是否为回文串
+**Manacher's Algorithm：**
 
-**方法二：**
+核心思想，记录回文串，减少重复判断：
 
-遍历字符串，以每一个字符或两个字符为中心（奇偶性），向外扩散搜索
+1. 重构字符串，例如将 `abbc` 重构为 `[#a#b#b#c#]`，`#` 让字符串的奇偶性得到统一，`[]` 在字符串前后添加两个不同的字符，就不用担心越界问题（这里要保证，`#`，`[`，`]` 三个字符在原字符串中不存在）。
+2. 设置数组 `p[i]`，遍历时，记录以 `i` 下标的字符为中心，其回文串半径。
+3. 遍历时，记录并实时更新回文串所能达到的最右端下标 `maxRight`，以及其对应的中心 `maxRightIndex`。
+4. 当 `i < maxRight` 时，以 `maxRightIndex` 为对称轴，存在 `j`。若以 `j` 为中心存在回文串，那么对称，以 `i` 为中心，同样存在回文串，即 `p[i] = p[j]` ，就可以减少此半径内字符的判断，直接从该范围的边界开始扩展。
+5. 这里要注意：当 `p[j]` 的半径大于 `maxRight - i`，由于 `maxRight` 是所能预估的最右端，所以只能从 `maxRight` 开始向外遍历。
 
-**方法三：**
+### Code
 
-核心思想：遍历字符串的同时，记录其回文子串的状态，减少重复判断，从而达到线性的时间复杂度
+**最长公共子串：**
 
-首先重构字符串，例如将 `abbc` 重构为 `[#a#b#b#c#]`，`#` 让字符串的奇偶性得到统一，`[]` 在字符串前后添加两个不同的字符，就可以不用显示判断操作是否越界（这里要保证，`#`，`[`，`]` 三个字符在原字符串中不存在）
+```kotlin
+class Solution {
 
-建立数组 `p[]`，用来存放新字符串的回文子串半径，例如， `#a#b`，`#` 的半径为 `1`，`a` 的半径为 `2`
+    fun longestPalindrome(s: String): String {
 
-`i` 为当前处于的位置
-`maxRight` 代表目前已遍历的回文子串中，所能达到的最右端位置（` maxRight = p[i] + i`，为开区间）
-`maxRightIndex` 代表其回文子串的对称轴
+        var index = 0
+        var maxLen = 0
+        val len = Array(s.length + 1) { IntArray(s.length + 1) }
 
-所以当 `i < maxRight` 时，可知，关于对称轴对应的左边，存在 `j`，与其回文子串状态相似
-当 `p[j] < maxRight - i`，回文子串完全相对应，即 `p[i] = p[j]`
-当 `p[j] >= maxRight - i`，`i` 的回文子串所能保证的仅仅是 `maxRight - i` 部分
-综合处理，当 `i < maxRight` 时，`p[i] = Math.min(maxRight - i, p[j])`
-
-当 `i >= maxRight` 时，没有参照，状态不明，所以 `p[i] = 1`，只能通过遍历判断回文状态
-
-### 代码
-
-**最长公共子串**
-
-```java
-public class Solution {
-
-    public String longestPalindrome(String s) {
-
-        int index = 0;
-        int maxLen = 0;
-        int len = s.length() + 1;
-        int[][] n = new int[len][len];
-
-        for (int i = 1; i < len; i++) {
-            for (int j = 1; j < len; j++) {
-
-                if (s.charAt(i - 1) == s.charAt(len - j - 1)) {
-
-                    n[i][j] = n[i - 1][j - 1] + 1;
-                    if (maxLen < n[i][j] && (i + j - len + 1) == n[i][j]) {
-                        maxLen = n[i][j];
-                        index = i;
+        var j: Int
+        for (i in 1..s.length) {
+            for (ri in s.length downTo 1) {
+                if (s[i - 1] == s[ri - 1]) {
+                    j = s.length - ri + 1
+                    len[i][j] = len[i - 1][j - 1] + 1
+                    if (maxLen < len[i][j] && i - ri + 1 == len[i][j]) {
+                        maxLen = len[i][j]
+                        index = i - 1
                     }
                 }
             }
         }
 
-        String substring = "";
-        while (maxLen > 0) {
-
-            substring += s.charAt(--index);
-            maxLen--;
+        val result = StringBuilder()
+        while (maxLen-- > 0) {
+            result.insert(0, s[index--])
         }
-        return substring;
+
+        return result.toString()
     }
 }
 ```
 
-**中心扩散**
+**中心扩散：**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestPalindrome(String s) {
+    fun longestPalindrome(s: String): String {
 
-        int index = 0;
-        int maxLen = 0;
-        for (int i = 0; i < s.length(); i++) {
+        var index = 0
+        var maxLen = 0
+        var len: Int
 
-            int xlen = getLen(s, i, i);
-            int ylen = getLen(s, i, i + 1);
-            int len = Math.max(xlen, ylen);
+        for (i in s.indices) {
+            len = maxOf(getLen(s, i, i), getLen(s, i, i + 1))
             if (maxLen < len) {
-                maxLen = len;
-                index = i - (len - 1) / 2;
+                maxLen = len
+                index = i - (len - 1) / 2
             }
         }
 
-        return s.substring(index, index + maxLen);
+        return s.substring(index, index + maxLen)
     }
 
-    private int getLen(String s, int left, int right) {
+    private fun getLen(s: String, left: Int, right: Int): Int {
 
-        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
-            left--;
-            right++;
+        var l = left
+        var r = right
+
+        while (l >= 0 && r < s.length && s[l] == s[r]) {
+            l--
+            r++
         }
 
-        return (right - 1) - (left + 1) + 1;
+        return r - l - 1
     }
 }
 ```
 
-**Manacher's Algorithm**
+**Manacher's Algorithm：**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestPalindrome(String s) {
+    fun longestPalindrome(s: String): String {
 
-        char[] newString = new char[s.length() * 2 + 3];
-
-        newString[0] = '[';
-        for (int i = 0, k = 1; i < s.length(); i++) {
-            newString[k++] = '#';
-            newString[k++] = s.charAt(i);
+        val ns = CharArray(s.length * 2 + 3)
+        ns[0] = '['
+        for (i in s.indices) {
+            ns[i * 2 + 1] = '#'
+            ns[i * 2 + 2] = s[i]
         }
-        newString[s.length() * 2 + 1] = '#';
-        newString[s.length() * 2 + 2] = ']';
+        ns[s.length * 2 + 1] = '#'
+        ns[s.length * 2 + 2] = ']'
 
-        int maxLen = 0;
-        int maxIndex = 0;
-        int maxRight = 0;
-        int maxRightIndex = 0;
-        int[] p = new int[newString.length];
+        var maxLen = 0
+        var maxIndex = 0
+        var maxRight = 0
+        var maxRightIndex = 0
+        val p = IntArray(ns.size)
 
-        int nslen = newString.length - 1;
-        for (int i = 1; i < nslen; i++) {
+        for (i in 1 until ns.size - 1) {
 
-            p[i] = i >= maxRight ? 1 : Math.min(maxRight - i, p[2 * maxRightIndex - i]);
-            while (newString[i - p[i]] == newString[i + p[i]]) {
-                p[i]++;
+            p[i] = if (i >= maxRight) 1 else minOf(maxRight - i, p[2 * maxRightIndex - i])
+            while (ns[i - p[i]] == ns[i + p[i]]) {
+                p[i]++
             }
 
             if (maxRight < p[i] + i) {
-                maxRight = p[i] + i;
-                maxRightIndex = i;
+                maxRight = p[i] + i
+                maxRightIndex = i
             }
 
-            maxLen = Math.max(maxLen, p[i]);
-            maxIndex = maxLen == p[i] ? i : maxIndex;
+            if (maxLen < p[i]) {
+                maxLen = p[i]
+                maxIndex = i
+            }
         }
-
-        return new String(newString, maxIndex - maxLen + 1, maxLen * 2 - 1).replace("#", "");
+        
+        return s.substring((maxIndex - 1) / 2 - (maxLen - 1) / 2, (maxIndex - 1) / 2 + maxLen / 2)
     }
 }
 ```

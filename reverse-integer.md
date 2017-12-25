@@ -1,65 +1,81 @@
 ## Reverse Integer
 
-Reverse digits of an integer.
+### Problem
+
+Given a 32-bit signed integer, reverse digits of an integer.
+
+**Example 1:**
 
 ```
-Example1: x = 123, return 321
-Example2: x = -123, return -321
+Input: 123
+Output:  321
+```
+
+**Example 2:**
+
+```
+Input: -123
+Output: -321
+```
+
+**Example 3:**
+
+```
+Input: 120
+Output: 21
 ```
 
 **Note:**
 
-The input is assumed to be a 32-bit signed integer. Your function should **return 0 when the reversed integer overflows**.
+Assume we are dealing with an environment which could only hold integers within the 32-bit signed integer range. For the purpose of this problem, assume that your function returns 0 when the reversed integer overflows.
 
 **Related Topics:**
 
 `Math`
 
-### 描述
+### Analysis
 
-整数倒叙，若溢出，则返回 0
+重点在于溢出处理，可以参考 `Integer.parseInt()` 方法，核心思想是：
+- 统一采用负数来处理。
+- 提前缩小区间范围，避免溢出。
 
-### 分析
+### Code
 
-重点在于如何处理溢出，可以参考 `Integer.parseInt()` 方法，核心思想是：
-- 统一采用负数来处理
-- 缩小区间范围，以便判断是否溢出
+```kotlin
+class Solution {
 
-### 代码
+    fun reverse(x: Int): Int {
 
-```java
-public class Solution {
+        var xi = x
+        var result = 0
+        var negative = false
+        var limit = -Int.MAX_VALUE
+        val multmin: Int
+        var digit: Int
 
-    public int reverse(int x) {
-
-        int result = 0;
-        boolean negative = false;
-        int limit = -Integer.MAX_VALUE;
-
-        if (x < 0) {
-            negative = true;
-            limit = Integer.MIN_VALUE;
+        if (xi < 0) {
+            negative = true
+            limit = Int.MIN_VALUE
         }
 
-        int digit;
-        int multmin = limit / 10;
-        while (x != 0) {
+        multmin = limit / 10
+        while (xi != 0) {
 
-            digit = Math.abs(x % 10);
-            x /= 10;
+            digit = if (negative) -(xi % 10) else xi % 10
+            xi /= 10
 
             if (result < multmin) {
-                return 0;
+                return 0
             }
-            result *= 10;
+            result *= 10
 
             if (result < limit + digit) {
-                return 0;
+                return 0
             }
-            result -= digit;
+            result -= digit
         }
 
-        return negative ? result : -result;
+        return if (negative) result else -result
     }
 }
 ```
