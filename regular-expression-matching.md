@@ -1,5 +1,7 @@
 ## Regular Expression Matching
 
+### Problem
+
 Implement regular expression matching with support for `.` and `*`.
 
 ```
@@ -12,103 +14,93 @@ The function prototype should be:
 bool isMatch(const char *s, const char *p)
 
 Some examples:
-isMatch("aa","a") ? false
-isMatch("aa","aa") ? true
-isMatch("aaa","aa") ? false
-isMatch("aa", "a*") ? true
-isMatch("aa", ".*") ? true
-isMatch("ab", ".*") ? true
-isMatch("aab", "c*a*b") ? true
+isMatch("aa","a") → false
+isMatch("aa","aa") → true
+isMatch("aaa","aa") → false
+isMatch("aa", "a*") → true
+isMatch("aa", ".*") → true
+isMatch("ab", ".*") → true
+isMatch("aab", "c*a*b") → true
 ```
 
 **Related Topics:**
 
 `Dynamic Programming` `Backtracking` `String`
 
-### 描述
+### Analysis
 
-给出匹配的标准：`.` 匹配任何单一字符，`*` 匹配零个或多个上一个字符。编写函数，判断两个字符串是否匹配
+影响匹配的主要因素是 `*`：
+- 当遇到 `*` 时，判断 `p` 前一个字符与 `s` 当前字符：
+ - 若相等，`p` 不变，接着判断 `s` 的下一个字符。
+ - 若不等，`s` 不变，接着判断 `p` 的下一个字符。
+ 
+- 没有遇到 `*` 时，判断 `p` 当前字符与`s` 当前字符：
+ - 若相等，判断 `p` 下一个字符与`s` 下一个字符。
+ - 若不等，返回 `false`。
 
-### 分析
+因为遍历时， `*` 扩展的数量是不确定的，例如：`aaas` 和 `a*as`，通常不会一步到位，需要涉及到回溯。
 
-若不存在 `*`，则两个字符串只要同时遍历比较即可，所以这里重点关注 `*`
+方法一：递归。遇到 `*` 时，两种情况都有可能得出正确结果，用 `||` 关联。没有遇到 `*` 时，只需判断一种情况。
 
-当遍历到 `*` 时，判断 `p` 的前一个字符与 `s` 当前字符：
-- 若相等，则判断 `s` 的下一个字符
-- 若不等，则判断 `p` 的下一个字符
+方法二：DP。建立二维数组，遍历的同时，记录之前所有的匹配情况，依据这些情报，来确定当前的状态。
 
-仅仅这样考虑会忽略掉很多可能性，例如 `aaas` 和 `a*as`，若 `*` 延伸到最后一个 `a`，则会匹配出错。进行回溯，能够发现，当 `*` 匹配第二个 `a` 时，整个字符串是匹配的
-
-第一种方法，递归。比较当前的字符，以及递归之后的字符串，在递归的过程中，遍历了所有的可能
-
-第二种方法，DP。以 `f[][]` 二维数组，在遍历的过程中， 记录之前遍历过的字符串的匹配结果。在两个字符比较时，判断之前字符串的情况。相当于，已知遍历过的字符串是否匹配，加入一个新字符，判断新组成的字符串是否匹配，一步一步扩展到字符串末尾
-
-### 代码
+### Code
 
 **递归**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public boolean isMatch(String s, String p) {
+    fun isMatch(s: String, p: String): Boolean {
 
-        if (p.isEmpty()) {
-            return s.isEmpty();
-        }
-
-        if (p.length() > 1 && '*' == p.charAt(1)) {
-            return (elementMatch(s, p) && isMatch(s.substring(1), p))
-                    || isMatch(s, p.length() > 2 ? p.substring(2) : "");
-        } else {
-            return elementMatch(s, p) && isMatch(s.substring(1), p.substring(1));
-        }
+        return isMatch(s, 0, p, 0)
     }
 
-    private boolean elementMatch(String s, String p) {
-        return !s.isEmpty() && (s.charAt(0) == p.charAt(0) || '.' == p.charAt(0));
+    private fun isMatch(s: String, si: Int, p: String, pi: Int): Boolean {
+
+        return when {
+            si >= s.length && pi >= p.length ->
+                true
+            pi + 1 < p.length && p[pi + 1] == '*' ->
+                (si < s.length && (p[pi] == s[si] || p[pi] == '.') && isMatch(s, si + 1, p, pi)) || isMatch(s, si, p, pi + 2)
+            else ->
+                pi < p.length && si < s.length && (p[pi] == s[si] || p[pi] == '.') && isMatch(s, si + 1, p, pi + 1)
+        }
     }
 }
 ```
 
 **Dynamic Programming**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public boolean isMatch(String s, String p) {
+    fun isMatch(s: String, p: String): Boolean {
 
-        int sn = s.length();
-        int pn = p.length();
-        s = " " + s;
-        p = " " + p;
+        val ns = " " + s
+        val np = " " + p
 
-        boolean[][] f = new boolean[sn + 1][pn + 1];
+        val dp = Array(ns.length) { BooleanArray(np.length) }
+        dp[0][0] = true
 
-        f[0][0] = true;
-        for (int i = 1; i <= sn; i++) {
-            f[i][0] = false;
+        for (i in 1 until ns.length) {
+            dp[i][0] = false
         }
 
-        for (int j = 1; j <= pn; j++) {
-            f[0][j] = p.charAt(j) == '*' && j > 1 && f[0][j - 2];
+        for (i in 1 until np.length) {
+            dp[0][i] = np[i] == '*' && i > 1 && dp[0][i - 2]
         }
 
-        for (int i = 1; i <= sn; i++) {
-            for (int j = 1; j <= pn; j++) {
-                if (p.charAt(j) == '*') {
-                    f[i][j] = (f[i - 1][j] && elementMatch(s, i, p, j - 1))
-                            || (j > 1 && f[i][j - 2]);
-                } else {
-                    f[i][j] = f[i - 1][j - 1] && elementMatch(s, i, p, j);
+        for (i in 1 until ns.length) {
+            for (j in 1 until np.length) {
+                dp[i][j] = when {
+                    np[j] == '*' -> ((ns[i] == np[j - 1] || np[j - 1] == '.') && dp[i - 1][j]) || (j > 1 && dp[i][j - 2])
+                    else -> (ns[i] == np[j] || np[j] == '.') && dp[i - 1][j - 1]
                 }
             }
         }
 
-        return f[sn][pn];
-    }
-
-    private boolean elementMatch(String s, int i, String p, int j) {
-        return p.charAt(j) == s.charAt(i) || p.charAt(j) == '.';
+        return dp[ns.lastIndex][np.lastIndex]
     }
 }
 ```

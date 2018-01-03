@@ -1,5 +1,7 @@
 ## Integer to Roman
 
+### Problem
+
 Given an integer, convert it to a roman numeral.
 
 Input is guaranteed to be within the range from 1 to 3999.
@@ -8,57 +10,54 @@ Input is guaranteed to be within the range from 1 to 3999.
 
 `Math` `String`
 
-### 描述
+### Analysis
 
-给出一个数字，转化为罗马数字
+方法一：打表，然后按位，对应进行转化。
 
-### 分析
+方法二：相邻的重复字符，具有重复叠加的含义。打表记录下特殊的字符后，便可以通过相减，推出重复字符出现的次数，从而得到结果。
 
-方法一：打表列出每位上 0 - 9 对应的罗马数字
-
-方法二：每位上，1 - 3 是 1 的累加，4 是 5 前面放个 1（相当于 5 - 1 = 4），6 - 8 是在 5 的基础上，1 的累加，9 则与 4 类似。1 - 3 和 6 - 8 有一定的共性，所以将 1，4，5，9 打表后，可以方便通过相减推出其它罗马数
-
-### 代码
+### Code
 
 **简单打表**
 
-```java
+```kotlin
 class Solution {
 
-    String[] I = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
-    String[] X = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
-    String[] C = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
-    String[] M = {"", "M", "MM", "MMM"};
+    private val i = arrayOf("", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX")
+    private val x = arrayOf("", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC")
+    private val c = arrayOf("", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM")
+    private val m = arrayOf("", "M", "MM", "MMM")
 
-    public String intToRoman(int num) {
+    fun intToRoman(num: Int): String {
 
-        return M[num / 1000] + C[(num % 1000) / 100] + X[(num % 100) / 10] + I[num % 10];
+        return m[num / 1000] + c[(num % 1000) / 100] + x[(num % 100) / 10] + i[num % 10]
     }
 }
 ```
 
 **相减取值**
 
-```java
+```kotlin
 class Solution {
 
-    int[] inum = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
-    String[] rnum = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+    private val i = arrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
+    private val r = arrayOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
 
-    public String intToRoman(int num) {
+    fun intToRoman(num: Int): String {
 
-        StringBuilder stringBuilder = new StringBuilder();
+        val string = StringBuilder()
 
-        int i = 0;
-        while (num > 0) {
-            while (num >= inum[i]) {
-                num -= inum[i];
-                stringBuilder.append(rnum[i]);
+        var index = 0
+        var n = num
+        while (n > 0) {
+            while (n >= i[index]) {
+                n -= i[index]
+                string.append(r[index])
             }
-            i++;
+            index++
         }
 
-        return stringBuilder.toString();
+        return string.toString()
     }
 }
 ```
