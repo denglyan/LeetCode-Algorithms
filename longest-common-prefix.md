@@ -1,40 +1,38 @@
 ## Longest Common Prefix
 
+### Problem
+
 Write a function to find the longest common prefix string amongst an array of strings.
 
 **Related Topics:**
 
 `String`
 
-### 描述
+### Analysis
 
-求最长公共前缀
-
-### 分析
-
-#### 水平扫描
+**水平扫描**
 
 ![](/assets/longest-common-prefix-1.png)
 
-#### 垂直扫描
+**垂直扫描**
 
-以列为单位扫描，适用于存在某些长度很短的字符串的情况
+以列为单位扫描，适用于存在短字符串的情况。
 
-#### 分治
+**分治**
 
-将字符串划分为多组，每组各自比较后，再合并比较
+将字符串划分为多组，每组各自比较后，再合并比较。
 
 ![](/assets/longest-common-prefix-2.png)
 
-#### 二分查找
+**长度二分**
 
-选出长度最短的字符串，并以此为基准进行二分
+以最短的字符串长度为基础，将长度进行二分，然后将第一个元素，按长度切割后比较。
 
 ![](/assets/longest-common-prefix-3.png)
 
-#### 前缀树
+**前缀树**
 
-建立前缀树，进行查询
+建立前缀树，进行查询。
 
 ![](/assets/longest-common-prefix-4.png)
 
@@ -42,258 +40,214 @@ Write a function to find the longest common prefix string amongst an array of st
 
 ![](/assets/longest-common-prefix-6.png)
 
-### 代码
+### Code
 
-#### 水平扫描
+**水平扫描**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestCommonPrefix(String[] strs) {
+    fun longestCommonPrefix(strs: Array<String>): String {
 
-        if (strs == null || strs.length == 0) {
-            return "";
+        if (strs.isEmpty()) {
+            return ""
         }
 
-        int n = strs.length;
-        String prefix = strs[0];
+        val prefix = strs[0]
+        var len = prefix.length
 
-        for (int i = 1; i < n; i++) {
-            while (!strs[i].startsWith(prefix)) {
-
-                prefix = prefix.substring(0, prefix.length() - 1);
-
-                if (prefix.isEmpty()) {
-                    return prefix;
-                }
+        for (i in 1 until strs.size) {
+            while (!strs[i].regionMatches(0, prefix, 0, len)) {
+                len--
             }
         }
 
-        return prefix;
+        return prefix.substring(0, len)
     }
 }
 ```
 
-#### 垂直扫描
+**垂直扫描**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestCommonPrefix(String[] strs) {
+    fun longestCommonPrefix(strs: Array<String>): String {
 
-        if (strs == null || strs.length == 0) {
-            return "";
+        if (strs.isEmpty()) {
+            return ""
         }
 
-        for (int i = 0; i < strs[0].length(); i++) {
-
-            char c = strs[0].charAt(i);
-
-            for (int j = 1; j < strs.length; j++) {
-                if (i == strs[j].length() || strs[j].charAt(i) != c) {
-                    return strs[0].substring(0, i);
-                }
-            }
+        for (i in 0 until strs[0].length) {
+            (1 until strs.size)
+                    .firstOrNull { i == strs[it].length || strs[0][i] != strs[it][i] }
+                    ?.let { return strs[0].substring(0, i) }
         }
 
-        return strs[0];
+        return strs[0]
     }
 }
 ```
 
-#### 分治
+**分治**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestCommonPrefix(String[] strs) {
+    fun longestCommonPrefix(strs: Array<String>): String {
 
-        if (strs == null || strs.length == 0) {
-            return "";
+        if (strs.isEmpty()) {
+            return ""
         }
 
-        return longestCommonPrefix(strs, 0, strs.length - 1);
+        return divideAndConquer(strs, 0, strs.size - 1)
     }
 
-    public String longestCommonPrefix(String[] strs, int l, int r) {
+    private fun divideAndConquer(strs: Array<String>, left: Int, right: Int): String {
 
-        if (l == r) {
-            return strs[l];
+        if (left == right) {
+            return strs[left]
         }
 
-        int mid = (l + r) / 2;
-        String left = longestCommonPrefix(strs, l, mid);
-        String right = longestCommonPrefix(strs, mid + 1, r);
-
-        return longestCommonPrefix(left, right);
+        val mid = (left + right) / 2
+        return divideAndConquer(strs, left, mid).compare(divideAndConquer(strs, mid + 1, right))
     }
 
-    public String longestCommonPrefix(String left, String right) {
+    private fun String.compare(s: String): String {
 
-        int min = Math.min(left.length(), right.length());
+        val min = minOf(this.length, s.length)
 
-        for (int i = 0; i < min; i++) {
-            if (left.charAt(i) != right.charAt(i)) {
-                return left.substring(0, i);
-            }
-        }
-
-        return left.substring(0, min);
+        return (0 until min)
+                .firstOrNull { this[it] != s[it] }
+                ?.let { this.substring(0, it) }
+                ?: this.substring(0, min)
     }
 }
 ```
 
-#### 二分查找
+**二分查找**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestCommonPrefix(String[] strs) {
+    fun longestCommonPrefix(strs: Array<String>): String {
 
-        if (strs == null || strs.length == 0) {
-            return "";
+        if (strs.isEmpty()) {
+            return ""
         }
 
-        int minLen = Integer.MAX_VALUE;
-        for (String str : strs) {
-            minLen = Math.min(minLen, str.length());
+        var minLen = Int.MAX_VALUE
+        for (s in strs) {
+            minLen = minOf(minLen, s.length)
         }
 
-        int l = 1, r = minLen, len = 0;
+        var left = 0
+        var right = minLen
+        var mid: Int
+        var len = 0
 
-        while (l <= r) {
-            int mid = (l + r) / 2;
+        while (left <= right) {
+
+            mid = (left + right) / 2
+
             if (isCommonPrefix(strs, mid)) {
-                len = mid;
-                l = mid + 1;
+                len = mid
+                left = mid + 1
             } else {
-                r = mid - 1;
+                right = mid - 1
             }
         }
 
-        return strs[0].substring(0, len);
+        return strs[0].substring(0, len)
     }
 
-    public boolean isCommonPrefix(String[] strs, int len) {
+    private fun isCommonPrefix(strs: Array<String>, len: Int): Boolean {
 
-        String str = strs[0].substring(0, len);
-
-        for (int i = 1; i < strs.length; i++) {
-            if (!strs[i].startsWith(str)) {
-                return false;
-            }
-        }
-
-        return true;
+        (1 until strs.size)
+                .firstOrNull { !strs[0].regionMatches(0, strs[it], 0, len) }
+                ?.let { return false }
+                ?: return true
     }
 }
 ```
 
-#### 前缀树
+**前缀树**
 
-```java
-public class Solution {
+```kotlin
+class Solution {
 
-    public String longestCommonPrefix(String[] strs) {
+    fun longestCommonPrefix(strs: Array<String>): String {
 
-        if (strs == null || strs.length == 0) {
-            return "";
+        if (strs.isEmpty()) {
+            return ""
         }
 
-        if (strs.length == 1) {
-            return strs[0];
+        val trie = Trie()
+        for (s in strs) {
+            trie.insert(s)
         }
 
-        Trie trie = new Trie();
-        for (int i = 0; i < strs.length; i++) {
-            trie.insert(strs[i]);
-        }
-
-        return trie.searchLongestPrefix(strs[0]);
+        return trie.searchLongestPrefix(strs[0])
     }
 
     class TrieNode {
 
-        private TrieNode[] links;
-        private final int R = 26;
-        private boolean isEnd;
-        private int size = 0;
+        private val links: Array<TrieNode?> = arrayOfNulls(26)
+        var isEnd: Boolean = false
+        var size: Int = 0
+            private set
 
-        public TrieNode() {
-            links = new TrieNode[R];
+        fun getTrieNode(c: Char): TrieNode? {
+            return links[c - 'a']
         }
 
-        public boolean containsKey(char c) {
-            return links[c - 'a'] != null;
+        fun setTrieNode(c: Char, node: TrieNode) {
+            links[c - 'a'] = node
+            size++
         }
 
-        public TrieNode get(char c) {
-            return links[c - 'a'];
-        }
-
-        public void put(char c, TrieNode node) {
-            links[c - 'a'] = node;
-            size++;
-        }
-
-        public void setEnd() {
-            isEnd = true;
-        }
-
-        public boolean isEnd() {
-            return isEnd;
-        }
-
-        public int getSize() {
-            return size;
+        fun containNode(c: Char): Boolean {
+            return links[c - 'a'] != null
         }
     }
 
     class Trie {
 
-        private TrieNode root;
+        private val root = TrieNode()
 
-        public Trie() {
-            root = new TrieNode();
-        }
+        fun insert(s: String) {
 
-        public void insert(String word) {
+            var node = root
 
-            TrieNode node = root;
-            for (int i = 0; i < word.length(); i++) {
+            for (c in s) {
 
-                char currentChar = word.charAt(i);
-
-                if (!node.containsKey(currentChar)) {
-                    node.put(currentChar, new TrieNode());
+                if (!node.containNode(c)) {
+                    node.setTrieNode(c, TrieNode())
                 }
 
-                node = node.get(currentChar);
+                node = node.getTrieNode(c)!!
             }
 
-            node.setEnd();
+            node.isEnd = true
         }
 
-        public String searchLongestPrefix(String str) {
+        fun searchLongestPrefix(s: String): String {
 
-            TrieNode node = root;
-            StringBuffer prefix = new StringBuffer();
+            var node = root
+            val result = StringBuilder()
 
-            for (int i = 0; i < str.length(); i++) {
+            for (c in s) {
 
-                char c = str.charAt(i);
-
-                if (node.containsKey(c) && (node.getSize() == 1) && (!node.isEnd())) {
-                    prefix.append(c);
-                    node = node.get(c);
+                if (node.containNode(c) && node.size == 1 && !node.isEnd) {
+                    result.append(c)
+                    node = node.getTrieNode(c)!!
                 } else {
-                    return prefix.toString();
+                    return result.toString()
                 }
             }
 
-            return prefix.toString();
+            return result.toString()
         }
     }
 }
 ```
-
