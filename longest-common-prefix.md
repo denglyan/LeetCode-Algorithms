@@ -125,7 +125,7 @@ class Solution {
 }
 ```
 
-**二分查找**
+**长度二分**
 
 ```kotlin
 class Solution {
