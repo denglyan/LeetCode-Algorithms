@@ -22,3 +22,4 @@
 * [19. Remove Nth Node From End of List](remove-nth-node-from-end-of-list.md)
 * [20. Valid Parentheses](valid-parentheses.md)
 * [21. Merge Two Sorted Lists](merge-two-sorted-lists.md)
+* [22. Generate Parentheses](generate-parentheses.md)
