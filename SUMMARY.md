@@ -26,3 +26,5 @@
 * [23. Merge k Sorted Lists](merge-k-sorted-lists.md)
 * [24. Swap Nodes in Pairs](swap-nodes-in-pairs.md)
 * [25. Reverse Nodes in k-Group](reverse-nodes-in-k-group.md)
+* [26. Remove Duplicates from Sorted Array](remove-duplicates-from-sorted-array.md)
+* [27. Remove Element](remove-element.md)
