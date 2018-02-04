@@ -24,3 +24,5 @@
 * [21. Merge Two Sorted Lists](merge-two-sorted-lists.md)
 * [22. Generate Parentheses](generate-parentheses.md)
 * [23. Merge k Sorted Lists](merge-k-sorted-lists.md)
+* [24. Swap Nodes in Pairs](swap-nodes-in-pairs.md)
+* [25. Reverse Nodes in k-Group](reverse-nodes-in-k-group.md)
