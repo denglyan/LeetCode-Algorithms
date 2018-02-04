@@ -1,4 +1,4 @@
-## Swap Nodes in Pairs
+## Reverse Nodes in k-Group
 
 ### Problem
 
