@@ -30,3 +30,4 @@
 * [27. Remove Element](remove-element.md)
 * [28. Implement strStr()](implement-strstr.md)
 * [29. Divide Two Integers](divide-two-integers.md)
+* [30. Substring with Concatenation of All Words](substring-with-concatenation-of-all-words.md)
