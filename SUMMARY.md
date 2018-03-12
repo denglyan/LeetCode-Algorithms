@@ -33,3 +33,4 @@
 * [30. Substring with Concatenation of All Words](substring-with-concatenation-of-all-words.md)
 * [31. Next Permutation](next-permutation.md)
 * [32. Longest Valid Parentheses](longest-valid-parentheses.md)
+* [33. Search in Rotated Sorted Array](search-in-rotated-sorted-array.md)
