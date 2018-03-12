@@ -32,3 +32,4 @@
 * [29. Divide Two Integers](divide-two-integers.md)
 * [30. Substring with Concatenation of All Words](substring-with-concatenation-of-all-words.md)
 * [31. Next Permutation](next-permutation.md)
+* [32. Longest Valid Parentheses](longest-valid-parentheses.md)
