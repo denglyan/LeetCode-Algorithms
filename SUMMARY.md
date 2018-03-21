@@ -35,3 +35,4 @@
 * [32. Longest Valid Parentheses](longest-valid-parentheses.md)
 * [33. Search in Rotated Sorted Array](search-in-rotated-sorted-array.md)
 * [34. Search for a Range](search-for-a-range.md)
+* [35. Search Insert Position](search-insert-position.md)
