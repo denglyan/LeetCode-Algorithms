@@ -37,3 +37,4 @@
 * [34. Search for a Range](search-for-a-range.md)
 * [35. Search Insert Position](search-insert-position.md)
 * [36. Valid Sudoku](valid-sudoku.md)
+* [37. Sudoku Solver](sudoku-solver.md)
