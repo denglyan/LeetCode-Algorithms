@@ -38,3 +38,4 @@
 * [35. Search Insert Position](search-insert-position.md)
 * [36. Valid Sudoku](valid-sudoku.md)
 * [37. Sudoku Solver](sudoku-solver.md)
+* [38. Count and Say](count-and-say.md)
